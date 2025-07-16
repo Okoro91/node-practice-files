@@ -1,5 +1,7 @@
 import http from "node:http";
 import { getDataFromDB } from "./database/db.js";
+import { sendJSON } from "./modules/sendJSON.js";
+import { dataPath } from "./modules/dataPath.js";
 
 const PORT = 8000;
 
@@ -8,26 +10,21 @@ const server = http.createServer(async (req, res) => {
 
   if (req.url === "/api" && req.method === "GET") {
     const destinations = JSON.stringify(getData);
-    res.setHeader("Content-Type", "application/json");
-    res.statusCode = 200;
-    res.end(destinations);
+    sendJSON(res, 200, destinations);
   } else if (req.url.startsWith("/api/continent") && req.method === "GET") {
     const continent = req.url.split("/").pop();
-    const filteredData = getData.filter((destination) => {
-      return destination.continent.toLowerCase() === continent.toLowerCase();
-    });
-    res.setHeader("Content-Type", "application/json");
-    res.statusCode = 200;
-    res.end(JSON.stringify(filteredData));
+    const filteredData = dataPath(getData, "continent", continent);
+    sendJSON(res, 200, filteredData);
+  } else if (req.url.startsWith("/api/country") && req.method === "GET") {
+    const country = req.url.split("/").pop();
+    const filteredData = dataPath(getData, "country", country);
+    sendJSON(res, 200, filteredData);
   } else {
-    res.setHeader("Content-Type", "application/json");
-    res.statusCode = 404;
-    res.end(
-      JSON.stringify({
-        error: "not found",
-        message: "The requested route does not exist",
-      })
-    );
+    const error = {
+      error: "not found",
+      message: "The requested route does not exist",
+    };
+    sendJSON(res, 404, error);
   }
 });
 
