@@ -1,26 +1,18 @@
 import http from "node:http";
-import fs from "node:fs";
+import path from "node:path";
+import { staticPath } from "./utils/staticPath.js";
 
 const PORT = 8000;
 
-const __dirname = import.meta.dirname;
-const file = "public/index.html";
+const PUBLIC_DIR = path.join(process.cwd(), "public");
 
 const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/html");
+  let filePath = path.join(PUBLIC_DIR, req.url);
 
-  fs.readFile(file, (err, data) => {
-    if (err) {
-      console.error("Error reading file:", err);
-      res.statusCode = 500;
-      res.setHeader("Content-Type", "text/plain");
-      res.end("Error loading the page.");
-      return;
-    }
-
-    res.end(data);
-  });
+  if (req.url === "/") {
+    filePath = path.join(PUBLIC_DIR, "index.html");
+  }
+  staticPath(filePath, res);
 });
 
 server.listen(PORT, () => console.log(`connected on port ${PORT}`));
