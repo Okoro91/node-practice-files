@@ -1,5 +1,5 @@
-export const sendRes = (res, statusCode, data) => {
-  res.setHeader("Content-Type", "text/html");
+export const sendRes = (res, statusCode, data, contentType) => {
+  res.setHeader("Content-Type", contentType);
   res.statusCode = statusCode;
   res.end(data);
 };
